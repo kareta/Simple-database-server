@@ -1,13 +1,10 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace DatabaseServer
 {
     class QueryParser
     {
-        public static DatabaseEngine de = new DatabaseEngine();
-
         public static List<List<object>> ParseQuery(string query)
         {
             var splittedQuery = query.Split(' ');
