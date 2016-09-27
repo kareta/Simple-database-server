@@ -98,7 +98,7 @@ namespace DatabaseServer
             return columnsTypes;
         }
 
-        public static void Main(string[] args)
+        /*public static void Main(string[] args)
         {
             var dbDirectoryPath = Environment.GetEnvironmentVariable("USERPROFILE");
             if (dbDirectoryPath != null)
@@ -119,7 +119,7 @@ namespace DatabaseServer
                 PrintRows(all);
             }
             Console.ReadLine();
-        }
+        }*/
 
         public static void PrintRows(List<List<object>> rows)
         {
