@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DatabaseServer
 {
-    class DatabaseServer
+    public class DatabaseServer
     {
         public static string Data { get; private set; }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using static System.Environment;
 
 namespace DatabaseServer
@@ -126,20 +127,22 @@ namespace DatabaseServer
 
         public static void Main(string[] args)
         {
-                var de = new DatabaseEngine();
+            /*var de = new DatabaseEngine();
 
-                var columns = new List<Tuple<string, string>>
-                {
-                    new Tuple<string, string>("Name", "string"),
-                    new Tuple<string, string>("Surname", "string"),
-                    new Tuple<string, string>("Age", "integer"),
-                };
+            var columns = new List<Tuple<string, string>>
+            {
+                new Tuple<string, string>("Name", "string"),
+                new Tuple<string, string>("Surname", "string"),
+                new Tuple<string, string>("Age", "integer"),
+            };
 
-                de.CreateIfNotExists("Student", columns);
-                de.InsertRow("Student", new List<object> {"Vasya", "Vasya", 12});
-                var all = de.SelectAll("Student");
-                PrintRows(all);
-            
+            de.CreateIfNotExists("Student", columns);
+            de.InsertRow("Student", new List<object> {"Vasya", "Vasya", 12});
+            var all = de.SelectAll("Student");
+            PrintRows(all);*/
+
+            Console.WriteLine(QueryValidator.ValidateSelectWhere("SELECT WHERE id 23.4343  y tFROM vasya"));
+            //Console.WriteLine(Regex.IsMatch("12", "[+-]([0-9]*[.])?[0-9]+"));
             Console.ReadLine();
         }
 

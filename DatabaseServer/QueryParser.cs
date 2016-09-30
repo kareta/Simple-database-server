@@ -3,45 +3,38 @@ using System.Collections.Generic;
 
 namespace DatabaseServer
 {
-    class QueryParser
+    public class QueryParser
     {
         public static List<List<object>> ParseQuery(string query)
         {
-            var splittedQuery = query.Split(' ');
-            var operationName = splittedQuery[0];
-            switch (operationName)
+            if (QueryValidator.CreateIsValid(query))
             {
-                case "SELECT":
-                    return ParseSelect(query);
-                case "INSERT":
-                    return ParseInsert(query);
-                case "CREATE":
-                    return ParseCreate(query);
-                default:
-                    throw new Exception("Unsupported query");
-            }
-        }
-
-        public static List<List<object>> ParseSelect(string query)
-        {
-            var splittedQuery = query.Split(' ');
-            var operationName = splittedQuery[1];
-            switch (operationName)
-            {
-                case "ALL":
-                    return ParseSelectAll(query);
-                case "WHERE":
-                    return ParseSelectWhere(query);
-                default:
-                    throw new Exception("Unsupported query");
+                return ParseCreate(query);
             }
 
+            if (QueryValidator.SelectAllIsValid(query))
+            {
+                return ParseSelectAll(query);
+            }
+
+            if (QueryValidator.SelectWhereIsValid(query))
+            {
+                return ParseSelectWhere(query);
+            }
+
+            if (QueryValidator.InsertIsValid(query))
+            {
+                return ParseInsert(query);
+            }
+            return null;
         }
 
         // SELECT ALL FROM table_name
         public static List<List<object>> ParseSelectAll(string query)
         {
-            return null;
+            var resultSet = new List<List<object>>();
+
+            return resultSet;
         }
 
         // SELECT WHERE column value FROM table_name

@@ -32,7 +32,7 @@ namespace DatabaseServer
             {
                 foreach (var field in row)
                 {
-                    builder.Append(field.ToString() + " ");
+                    builder.Append(field + " ");
                 }
                 builder.Append("\n");
             }
