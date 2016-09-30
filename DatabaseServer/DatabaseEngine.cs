@@ -1,14 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using static System.Environment;
 
 namespace DatabaseServer
 {
-    class DatabaseEngine
+    public class DatabaseEngine
     {
-        public void CreateIfNotExists(string tablePath, List<Tuple<string, string>> columns)
+        public string DatabaseDirectory { get; } = 
+            Path.Combine(GetEnvironmentVariable("USERPROFILE"), "lab2");
+
+        public bool TableExists(string tableName) => File.Exists(GetTablePath(tableName));
+
+        public string GetTablePath(string tableName) => Path.Combine(DatabaseDirectory, tableName);
+
+        public void CreateIfNotExists(string tableName, List<Tuple<string, string>> columns)
         {
-            if (File.Exists(tablePath)) return;
+            if (TableExists(tableName)) return;
+
+            var tablePath = GetTablePath(tableName);
+
             using (var tableFile = new FileStream(tablePath, FileMode.Create))
             using (var writer = new BinaryWriter(tableFile))
             {
@@ -23,8 +34,11 @@ namespace DatabaseServer
             }
         }
 
-        public void InsertRow(string tablePath, List<object> row)
+        public void InsertRow(string tableName, List<object> row)
         {
+            if (!TableExists(tableName)) return;
+
+            var tablePath = GetTablePath(tableName);
             using (var tableFile = new FileStream(tablePath, FileMode.Append))
             using (var writer = new BinaryWriter(tableFile))
             {
@@ -32,8 +46,12 @@ namespace DatabaseServer
             }
         } 
 
-        public List<List<object>> SelectAll(string tablePath)
+        public List<List<object>> SelectAll(string tableName)
         {
+            if (!TableExists(tableName)) return null;
+
+            var tablePath = GetTablePath(tableName);
+
             var rows = new List<List<object>>();
             var columnsTypes = GetColumnsTypes(tablePath);
 
@@ -67,8 +85,12 @@ namespace DatabaseServer
             }
         }
 
-        public static List<Tuple<string, string>> GetHeader(string tablePath)
+        public List<Tuple<string, string>> GetHeader(string tableName)
         {
+            if (!TableExists(tableName)) return null;
+
+            var tablePath = GetTablePath(tableName);
+
             var header = new List<Tuple<string, string>>();
 
             using (var tableFile = new FileStream(tablePath, FileMode.Open))
@@ -87,8 +109,12 @@ namespace DatabaseServer
             return header;
         }
 
-        public static List<string> GetColumnsTypes(string tablePath)
+        public List<string> GetColumnsTypes(string tableName)
         {
+            if (!TableExists(tableName)) return null;
+
+            var tablePath = GetTablePath(tableName);
+
             var columnsTypes = new List<string>();
             var header = GetHeader(tablePath);
             foreach (var column in header)
@@ -98,12 +124,8 @@ namespace DatabaseServer
             return columnsTypes;
         }
 
-        /*public static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            var dbDirectoryPath = Environment.GetEnvironmentVariable("USERPROFILE");
-            if (dbDirectoryPath != null)
-            {
-                var tablePath = Path.Combine(dbDirectoryPath, "ooplab2\\Person");
                 var de = new DatabaseEngine();
 
                 var columns = new List<Tuple<string, string>>
@@ -113,13 +135,13 @@ namespace DatabaseServer
                     new Tuple<string, string>("Age", "integer"),
                 };
 
-                de.CreateIfNotExists(tablePath, columns);
-                de.InsertRow(tablePath, new List<object> {"Vasya", "Vasya", 12});
-                var all = de.SelectAll(tablePath);
+                de.CreateIfNotExists("Student", columns);
+                de.InsertRow("Student", new List<object> {"Vasya", "Vasya", 12});
+                var all = de.SelectAll("Student");
                 PrintRows(all);
-            }
+            
             Console.ReadLine();
-        }*/
+        }
 
         public static void PrintRows(List<List<object>> rows)
         {

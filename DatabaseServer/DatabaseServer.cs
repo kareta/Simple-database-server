@@ -58,10 +58,10 @@ namespace DatabaseServer
 
         }
 
-        public static int Main() {
-            StartListening();
-
-            return 0;
-        }
+//        public static int Main() {
+//            StartListening();
+//
+//            return 0;
+//        }
     }
 }
