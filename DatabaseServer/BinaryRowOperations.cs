@@ -4,7 +4,7 @@ using System.IO;
 
 namespace DatabaseServer
 {
-    class RowOperations
+    class BinaryRowOperations
     {
         public static void WriteRow(BinaryWriter writer, List<object> row)
         {

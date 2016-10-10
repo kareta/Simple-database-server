@@ -43,14 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BinaryStorageEngine.cs" />
     <Compile Include="ClientPacket.cs" />
     <Compile Include="DatabaseEngine.cs" />
     <Compile Include="DatabaseServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryParser.cs" />
     <Compile Include="QueryValidator.cs" />
-    <Compile Include="RowOperations.cs" />
+    <Compile Include="BinaryRowOperations.cs" />
     <Compile Include="ServerPacket.cs" />
+    <Compile Include="TextStorageEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
