@@ -7,13 +7,13 @@ namespace DatabaseServer
 {
     public class QueryParser
     {
-        TextStorageEngine storageEngine = new TextStorageEngine();
+        private TextStorageEngine _storageEngine = new TextStorageEngine();
 
         public List<string> ParseQuery(string query)
         {
             if (QueryValidator.CreateIsValid(query))
             {
-                return ParseCreate(query);
+                ParseCreate(query);
             }
 
             if (QueryValidator.SelectAllIsValid(query))
@@ -36,8 +36,8 @@ namespace DatabaseServer
         // SELECT ALL FROM table_name
         public List<string> ParseSelectAll(string query)
         {
-            string tableName = query.Split()[3];
-            return storageEngine.SelectAll(tableName);
+            var tableName = query.Split()[3];
+            return _storageEngine.SelectAll(tableName);
         }
 
         // SELECT WHERE column value FROM table_name
@@ -53,23 +53,28 @@ namespace DatabaseServer
             var tableName = regexTableName.Matches(query)[0].ToString().Split()[1];
             
             var regexColumns = new Regex(@"(\w+ ('''.*'''))|(\w+ ([0-9]*[.])?[0-9]+)+");
-            //var row = string.Join(" ", regexColumns.Matches(query));
             var matchCollection = regexColumns.Matches(query);
             var row = string.Join(" ", matchCollection.Cast<Match>().Select(m => m.Value));
-            storageEngine.InsertRow(tableName, row);
-            Console.WriteLine(row);
+            _storageEngine.InsertRow(tableName, row);
         }
 
-        //CREATE table_name column type column type
-        public List<string> ParseCreate(string query)
+        //CREATE table_name WITH column type column type
+        public void ParseCreate(string query)
         {
-            return null;
+            //WITH(\w+ \w+)+
+            var splittedQuery = query.Split();
+            var tableName = splittedQuery[1];
+            var segment = new ArraySegment<string>(splittedQuery, 3, splittedQuery.Length - 3);
+            var columns = string.Join(" ", segment);
+            Console.WriteLine(columns);
+            _storageEngine.CreateIfNotExists(tableName, columns);
         }
 
         public static void Main(string[] args)
         {
             var queryParser = new QueryParser();
-            queryParser.ParseInsert("INSERT lol '''fw eew f''' age 32.4 INTO vasya");
+            //queryParser.ParseInsert("INSERT lol '''fw eew f''' age 32.4 INTO vasya");
+            queryParser.ParseCreate("CREATE test WITH number integer text string");
             Console.ReadLine();
         }
     }

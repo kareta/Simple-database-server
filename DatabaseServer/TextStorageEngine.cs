@@ -15,23 +15,25 @@ namespace DatabaseServer
 
         public string GetTablePath(string tableName) => Path.Combine(DatabaseDirectory, tableName);
 
-        public void CreateIfNotExists(string tableName, List<Tuple<string, string>> columns)
+        public void CreateIfNotExists(string tableName, string columns)
         {
             if (TableExists(tableName)) return;
 
             var tablePath = GetTablePath(tableName);
 
+            var splittedColumns = columns.Split();
+
             using (var tableFile = new FileStream(tablePath, FileMode.Create))
             using (var writer = new StreamWriter(tableFile))
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.Append(columns.Count + " ");
-                foreach (var column in columns)
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append(splittedColumns.Length / 2 + " ");
+                for (var i = 0; i < splittedColumns.Length; i+=2)
                 {
                     //write column name
-                    stringBuilder.Append(column.Item1 + " ");
+                    stringBuilder.Append(splittedColumns[i] + " ");
                     //write column type
-                    stringBuilder.Append(column.Item2 + " ");
+                    stringBuilder.Append(splittedColumns[i + 1] + " ");
                 }
                 writer.WriteLine(stringBuilder.ToString().Trim());
             }
