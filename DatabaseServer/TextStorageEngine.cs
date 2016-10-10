@@ -51,7 +51,28 @@ namespace DatabaseServer
 
         public List<string> SelectAll(string tableName)
         {
-            return null;
-        }    
+            if (!TableExists(tableName)) return null;
+
+            var tablePath = GetTablePath(tableName);
+            using (var tableFile = new FileStream(tablePath, FileMode.Open))
+            using (var reader = new StreamReader(tableFile))
+            {
+                SkipHeader(reader); 
+                return new List<string>(reader.ReadToEnd().Split());                          
+            }
+        }
+
+        private static void SkipHeader(StreamReader reader)
+        {
+            //Make sure file position is at the begining
+            reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+            //Skip columns number
+            reader.ReadLine();
+            //Skip columns names and types
+            reader.ReadLine();
+
+        }
+     
     }
 }

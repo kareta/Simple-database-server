@@ -124,7 +124,7 @@ namespace DatabaseServer
             return columnsTypes;
         }
 
-        public static void Main(string[] args)
+        /*public static void Main(string[] args)
         {
             var storageEngine = new BinaryStorageEngine();
 
@@ -141,7 +141,7 @@ namespace DatabaseServer
             PrintRows(all);
 
             Console.ReadLine();
-        }
+        }*/
 
         public static void PrintRows(List<List<object>> rows)
         {

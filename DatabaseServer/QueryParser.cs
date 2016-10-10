@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DatabaseServer
 {
     public class QueryParser
     {
-        public static List<List<object>> ParseQuery(string query)
+        TextStorageEngine storageEngine = new TextStorageEngine();
+
+        public List<string> ParseQuery(string query)
         {
             if (QueryValidator.CreateIsValid(query))
             {
@@ -24,35 +28,49 @@ namespace DatabaseServer
 
             if (QueryValidator.InsertIsValid(query))
             {
-                return ParseInsert(query);
+                ParseInsert(query);
             }
             return null;
         }
 
         // SELECT ALL FROM table_name
-        public static List<List<object>> ParseSelectAll(string query)
+        public List<string> ParseSelectAll(string query)
         {
-            var resultSet = new List<List<object>>();
-
-            return resultSet;
+            string tableName = query.Split()[3];
+            return storageEngine.SelectAll(tableName);
         }
 
         // SELECT WHERE column value FROM table_name
-        public static List<List<object>> ParseSelectWhere(string query)
+        public List<string> ParseSelectWhere(string query)
         {
             return null;
         }
 
         //INSERT column value column value INTO table_name
-        public static List<List<object>> ParseInsert(string query)
+        public void ParseInsert(string query)
+        {
+            var regexTableName = new Regex(@"INTO \w{1,256}");
+            var tableName = regexTableName.Matches(query)[0].ToString().Split()[1];
+            
+            var regexColumns = new Regex(@"(\w+ ('''.*'''))|(\w+ ([0-9]*[.])?[0-9]+)+");
+            //var row = string.Join(" ", regexColumns.Matches(query));
+            var matchCollection = regexColumns.Matches(query);
+            var row = string.Join(" ", matchCollection.Cast<Match>().Select(m => m.Value));
+            storageEngine.InsertRow(tableName, row);
+            Console.WriteLine(row);
+        }
+
+        //CREATE table_name column type column type
+        public List<string> ParseCreate(string query)
         {
             return null;
         }
 
-        //CREATE table_name column type column type
-        public static List<List<object>> ParseCreate(string query)
+        public static void Main(string[] args)
         {
-            return null;
+            var queryParser = new QueryParser();
+            queryParser.ParseInsert("INSERT lol '''fw eew f''' age 32.4 INTO vasya");
+            Console.ReadLine();
         }
     }
 }
