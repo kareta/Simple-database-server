@@ -18,6 +18,7 @@ namespace DatabaseServer
 
             if (QueryValidator.SelectAllIsValid(query))
             {
+                Console.WriteLine("select all is valid");
                 return ParseSelectAll(query);
             }
 
@@ -28,6 +29,7 @@ namespace DatabaseServer
 
             if (QueryValidator.InsertIsValid(query))
             {
+                Console.WriteLine("Insert is valid");
                 ParseInsert(query);
             }
             return null;
@@ -85,12 +87,12 @@ namespace DatabaseServer
             
         }
 
-        public static void Main(string[] args)
-        {
-            var queryParser = new QueryParser();
-            queryParser.ParseCreate("CREATE test WITH number integer text string UNIQUE number");
-            queryParser.ParseInsert("INSERT 32.4 '''fergge''' INTO test");
-            Console.ReadLine();
-        }
+//        public static void Main(string[] args)
+//        {
+//            var queryParser = new QueryParser();
+//            queryParser.ParseCreate("CREATE test WITH number integer text string UNIQUE number");
+//            queryParser.ParseInsert("INSERT 32.4 '''fergge''' INTO test");
+//            Console.ReadLine();
+//        }
     }
 }

@@ -8,7 +8,7 @@ namespace DatabaseServer
             @"SELECT ALL FROM \w{1,256}";
 
         public static string InsertPattern { get; } =
-            @"INSERT (\w+ ('''.*'''))|(\w+ ([0-9]*[.])?[0-9]+)+ INTO \w{1,256}";
+            @"INSERT (('''.*''' )|([0-9]*[.])?[0-9]+ )+INTO \w{1,256}";
 
         public static string CreatePattern { get; } =
             @"CREATE \w{1,256} WITH (\w+ \w+)+ (UNIQUE (\w+ )+|)";

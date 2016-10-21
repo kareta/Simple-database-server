@@ -13,7 +13,10 @@ namespace DatabaseServer
 
         public bool TableExists(string tableName) => File.Exists(GetTablePath(tableName));
 
-        public string GetTablePath(string tableName) => Path.Combine(DatabaseDirectory, tableName);
+        public string GetTablePath(string tableName)
+        {
+            return Path.Combine(DatabaseDirectory, tableName.Trim());
+        }
 
         public void CreateIfNotExists(string tableName, string columns, string uniqueColumns)
         {
@@ -38,6 +41,14 @@ namespace DatabaseServer
                 writer.WriteLine(stringBuilder.ToString().Trim());
                 writer.WriteLine(uniqueColumns);
             }
+        }
+
+        public void DeleteTable(string tableName )
+        {
+            if (!TableExists(tableName)) return;
+
+            var tablePath = GetTablePath(tableName);
+            File.Delete(tablePath);
         }
 
         public void InsertRow(string tableName, string row)
@@ -112,8 +123,8 @@ namespace DatabaseServer
             using (var tableFile = new FileStream(tablePath, FileMode.Open))
             using (var reader = new StreamReader(tableFile))
             {
-                SkipHeader(reader); 
-                return new List<string>(reader.ReadToEnd().Split());                          
+                SkipHeader(reader);
+                return new List<string>(reader.ReadToEnd().Split('\n'));                          
             }
         }
 

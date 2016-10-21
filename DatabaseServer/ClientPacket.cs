@@ -5,9 +5,9 @@ namespace DatabaseServer
     {
         public string Query { get; set; }
 
-        public ClientPacket(string query)
+        public ClientPacket(string data)
         {
-            Query = query;
+            Query = data;
         }
 
         public override string ToString()

@@ -9,7 +9,7 @@ namespace DatabaseServer
     public class DatabaseServer
     {
         public static string Data { get; private set; }
-        public static QueryParser parser;
+        public static QueryParser parser = new QueryParser();
 
         public static void StartListening() {
             var ipHostInfo = Dns.Resolve(Dns.GetHostName());
@@ -39,13 +39,17 @@ namespace DatabaseServer
                             break;
                         }
                     }
-                    parser.ParseQuery(Data);
+                    var clientPacket = new ClientPacket(Data.Trim());
+                    var query = clientPacket.Query;
+
+                    var resultData = parser.ParseQuery(query);
+                    var serverPacket = new ServerPacket(resultData);
                     Console.WriteLine( "Text received : {0}", Data);
+                    Console.WriteLine("Result data : {0}", serverPacket);
 
+                    byte[] packetBytes = Encoding.ASCII.GetBytes(serverPacket.ToString());
 
-                    byte[] msg = Encoding.ASCII.GetBytes("test");
-
-                    handler.Send(msg);
+                    handler.Send(packetBytes);
                     handler.Shutdown(SocketShutdown.Both);
                     handler.Close();
                 }
@@ -59,10 +63,10 @@ namespace DatabaseServer
 
         }
 
-//        public static int Main() {
-//            StartListening();
-//
-//            return 0;
-//        }
+        public static int Main() {
+            StartListening();
+
+            return 0;
+        }
     }
 }
