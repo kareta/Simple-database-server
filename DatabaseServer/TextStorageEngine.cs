@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using static System.Environment;
@@ -27,7 +26,7 @@ namespace DatabaseServer
             using (var writer = new StreamWriter(tableFile))
             {
                 var stringBuilder = new StringBuilder();
-                stringBuilder.Append(splittedColumns.Length / 2 + " ");
+                stringBuilder.Append(splittedColumns.Length / 2 + "\n");
                 for (var i = 0; i < splittedColumns.Length; i+=2)
                 {
                     //write column name
@@ -62,6 +61,30 @@ namespace DatabaseServer
                 SkipHeader(reader); 
                 return new List<string>(reader.ReadToEnd().Split());                          
             }
+        }
+
+        public List<string> SelectWhere(string tableName, string column, string value)
+        {
+            if (!TableExists(tableName)) return null;
+
+            var rows = new List<string>();
+
+            var tablePath = GetTablePath(tableName);
+            using (var tableFile = new FileStream(tablePath, FileMode.Open))
+            using (var reader = new StreamReader(tableFile))
+            {
+                SkipHeader(reader);
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.Contains($"{column} {value}"))
+                    {
+                        rows.Add(line);
+                    }
+                }
+            }
+
+            return rows;
         }
 
         private static void SkipHeader(StreamReader reader)

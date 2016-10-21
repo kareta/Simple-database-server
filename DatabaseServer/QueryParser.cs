@@ -43,7 +43,12 @@ namespace DatabaseServer
         // SELECT WHERE column value FROM table_name
         public List<string> ParseSelectWhere(string query)
         {
-            return null;
+            var queryParts = query.Split();
+            var column = queryParts[2];
+            var value = queryParts[3];
+            var tableName = queryParts[5];
+
+            return _storageEngine.SelectWhere(tableName, column, value);
         }
 
         //INSERT column value column value INTO table_name
@@ -61,20 +66,18 @@ namespace DatabaseServer
         //CREATE table_name WITH column type column type
         public void ParseCreate(string query)
         {
-            //WITH(\w+ \w+)+
             var splittedQuery = query.Split();
             var tableName = splittedQuery[1];
-            var segment = new ArraySegment<string>(splittedQuery, 3, splittedQuery.Length - 3);
-            var columns = string.Join(" ", segment);
-            Console.WriteLine(columns);
+            var columnsPart = new ArraySegment<string>(splittedQuery, 3, splittedQuery.Length - 3);
+            var columns = string.Join(" ", columnsPart);
             _storageEngine.CreateIfNotExists(tableName, columns);
         }
 
         public static void Main(string[] args)
         {
             var queryParser = new QueryParser();
-            //queryParser.ParseInsert("INSERT lol '''fw eew f''' age 32.4 INTO vasya");
             queryParser.ParseCreate("CREATE test WITH number integer text string");
+            queryParser.ParseInsert("INSERT lol '''fw eew f''' age 32.4 INTO test");
             Console.ReadLine();
         }
     }

@@ -9,6 +9,7 @@ namespace DatabaseServer
     public class DatabaseServer
     {
         public static string Data { get; private set; }
+        public static QueryParser parser;
 
         public static void StartListening() {
             var ipHostInfo = Dns.Resolve(Dns.GetHostName());
@@ -38,7 +39,7 @@ namespace DatabaseServer
                             break;
                         }
                     }
-
+                    parser.ParseQuery(Data);
                     Console.WriteLine( "Text received : {0}", Data);
 
 
