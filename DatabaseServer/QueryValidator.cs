@@ -11,7 +11,7 @@ namespace DatabaseServer
             @"INSERT (\w+ ('''.*'''))|(\w+ ([0-9]*[.])?[0-9]+)+ INTO \w{1,256}";
 
         public static string CreatePattern { get; } =
-            @"CREATE \w{1,256} WITH (\w+ \w+)+";
+            @"CREATE \w{1,256} WITH (\w+ \w+)+ (UNIQUE (\w+ )+|)";
 
         public static string SelectWherePattern { get; } =
             @"SELECT WHERE (\w+ ('''.*'''))|(\w+ ([0-9]*[.])?[0-9]+) FROM \w{1,256}";

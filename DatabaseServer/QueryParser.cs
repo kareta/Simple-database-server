@@ -54,13 +54,13 @@ namespace DatabaseServer
         //INSERT column value column value INTO table_name
         public void ParseInsert(string query)
         {
-            var regexTableName = new Regex(@"INTO \w{1,256}");
-            var tableName = regexTableName.Matches(query)[0].ToString().Split()[1];
-            
-            var regexColumns = new Regex(@"(\w+ ('''.*'''))|(\w+ ([0-9]*[.])?[0-9]+)+");
-            var matchCollection = regexColumns.Matches(query);
-            var row = string.Join(" ", matchCollection.Cast<Match>().Select(m => m.Value));
-            _storageEngine.InsertRow(tableName, row);
+            var splittedQuery = query.Split(' ');
+            var tableName = splittedQuery[splittedQuery.Length - 1];
+
+            var columnsPart = new ArraySegment<string>(splittedQuery, 1, splittedQuery.Length - 3);
+
+            var row = string.Join(" ", columnsPart);
+            _storageEngine.InsertRowUnique(tableName, row);
         }
 
         //CREATE table_name WITH column type column type
@@ -69,15 +69,27 @@ namespace DatabaseServer
             var splittedQuery = query.Split();
             var tableName = splittedQuery[1];
             var columnsPart = new ArraySegment<string>(splittedQuery, 3, splittedQuery.Length - 3);
-            var columns = string.Join(" ", columnsPart);
-            _storageEngine.CreateIfNotExists(tableName, columns);
+            var queryPart = string.Join(" ", columnsPart);
+            var columnsAndUnique = queryPart.Split(new string[] { "UNIQUE" }, StringSplitOptions.None);
+            var columns = columnsAndUnique[0];
+
+            if (columnsAndUnique.Length == 2)
+            {
+                var unique = columnsAndUnique[1];
+                _storageEngine.CreateIfNotExists(tableName, columns.Trim(), unique.Trim());
+            }
+            else
+            {
+                _storageEngine.CreateIfNotExists(tableName, columns, "");
+            }
+            
         }
 
         public static void Main(string[] args)
         {
             var queryParser = new QueryParser();
-            queryParser.ParseCreate("CREATE test WITH number integer text string");
-            queryParser.ParseInsert("INSERT lol '''fw eew f''' age 32.4 INTO test");
+            queryParser.ParseCreate("CREATE test WITH number integer text string UNIQUE number");
+            queryParser.ParseInsert("INSERT 32.4 '''fergge''' INTO test");
             Console.ReadLine();
         }
     }

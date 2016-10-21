@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using static System.Environment;
@@ -14,7 +15,7 @@ namespace DatabaseServer
 
         public string GetTablePath(string tableName) => Path.Combine(DatabaseDirectory, tableName);
 
-        public void CreateIfNotExists(string tableName, string columns)
+        public void CreateIfNotExists(string tableName, string columns, string uniqueColumns)
         {
             if (TableExists(tableName)) return;
 
@@ -27,7 +28,7 @@ namespace DatabaseServer
             {
                 var stringBuilder = new StringBuilder();
                 stringBuilder.Append(splittedColumns.Length / 2 + "\n");
-                for (var i = 0; i < splittedColumns.Length; i+=2)
+                for (var i = 0; i < splittedColumns.Length - 1; i+=2)
                 {
                     //write column name
                     stringBuilder.Append(splittedColumns[i] + " ");
@@ -35,6 +36,7 @@ namespace DatabaseServer
                     stringBuilder.Append(splittedColumns[i + 1] + " ");
                 }
                 writer.WriteLine(stringBuilder.ToString().Trim());
+                writer.WriteLine(uniqueColumns);
             }
         }
 
@@ -48,6 +50,58 @@ namespace DatabaseServer
             {
                 writer.WriteLine(row);
             }
+        }
+
+        public void InsertRowUnique(string tableName, string row)
+        {
+            if (!TableExists(tableName)) return;
+
+            var tablePath = GetTablePath(tableName);
+            
+
+            var indeces = GetUniqueIndeces(tableName);
+
+            File.Move(tablePath, tablePath + "_temp");
+            using (var tempTableFile = new FileStream(tablePath + "_temp", FileMode.Open))
+            using (var reader = new StreamReader(tempTableFile))
+            using (var tableFile = new FileStream(tablePath, FileMode.Create))
+            using (var writer = new StreamWriter(tableFile))
+            {
+                var values = row.Split(' ');
+
+                //Write columns number
+                writer.WriteLine(reader.ReadLine());
+                //Write columns names and types
+                writer.WriteLine(reader.ReadLine());
+                //Write unique columns
+                writer.WriteLine(reader.ReadLine());
+
+                
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    var currentValues = line.Split(' ');
+                    var foundUnique = false;
+                    Console.WriteLine(indeces.Count);
+                    foreach (var index in indeces)
+                    {
+                        if (currentValues[index] == values[index])
+                        {
+                            foundUnique = true;
+                            break;
+                        }
+                    }
+
+                    if (foundUnique)
+                    {
+                        continue;
+                    }
+                    writer.WriteLine(line);
+                }
+                writer.WriteLine(row);
+            }
+
+            File.Delete(tablePath + "_temp");
         }
 
         public List<string> SelectAll(string tableName)
@@ -87,6 +141,78 @@ namespace DatabaseServer
             return rows;
         }
 
+        private List<string> GetColumnsNames(string tableName)
+        {
+            var columnsNames = new List<string>();
+
+            if (!TableExists(tableName)) return null;
+
+            var tablePath = GetTablePath(tableName);
+            using (var tableFile = new FileStream(tablePath, FileMode.Open))
+            using (var reader = new StreamReader(tableFile))
+            {
+                //Skip columns number
+                reader.ReadLine();
+                //Get columns names and types
+                var columns = reader.ReadLine();
+
+                if (columns == null) return columnsNames;
+
+                var columnsData = columns.Split(' ');
+                for (var i = 0; i < columnsData.Length; i += 2)
+                {
+                    columnsNames.Add(columnsData[i]);
+                }
+            }
+            return columnsNames;
+        }
+
+        private List<string> GetUniqueColumns(string tableName)
+        {
+            var columnsNames = new List<string>();
+            
+            if (!TableExists(tableName)) return null;
+            var tablePath = GetTablePath(tableName);
+            using (var tableFile = new FileStream(tablePath, FileMode.Open))
+            using (var reader = new StreamReader(tableFile))
+            {
+                //Skip columns number
+                reader.ReadLine();
+                //Skip columns names and types
+                reader.ReadLine();
+                //Get unique columns
+                var uniqueColumns = reader.ReadLine();
+                if (uniqueColumns == null) return columnsNames;
+
+                var columnsData = uniqueColumns.Split(' ');
+                foreach (string uniqueColumn in columnsData)
+                {
+                    columnsNames.Add(uniqueColumn);
+                }
+            }
+            return columnsNames;
+        }
+
+        private List<int> GetUniqueIndeces(string tableName)
+        {
+            var columnsNames = GetColumnsNames(tableName);
+            var uniqueColumns = GetUniqueColumns(tableName);
+
+            var indeces = new List<int>();
+            
+            if (uniqueColumns == null)
+            {
+                return indeces;
+            }
+
+            foreach (var uniqueColumn in uniqueColumns)
+            {
+                var index = columnsNames.IndexOf(uniqueColumn);
+                indeces.Add(index);
+            }
+            return indeces;
+        }
+
         private static void SkipHeader(StreamReader reader)
         {
             //Make sure file position is at the begining
@@ -96,8 +222,8 @@ namespace DatabaseServer
             reader.ReadLine();
             //Skip columns names and types
             reader.ReadLine();
-
-        }
-     
+            //Skip unique columns
+            reader.ReadLine();
+        }    
     }
 }
